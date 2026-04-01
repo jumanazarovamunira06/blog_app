@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Blog Tizimi</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #f5f0e8;
+    --card: #faf7f2;
+    --ink: #0f0e0d;
+    --muted: #7a7369;
+    --border: #ddd8cc;
+    --rust: #c1440e;
+    --rust2: #e05a22;
+    --danger: #b91c1c;
+    --green: #15803d;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+  }
+
+  /* HEADER */
+  header {
+    background: var(--ink);
+    color: #fff;
+    padding: 0 2rem;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    border-bottom: 3px solid var(--rust);
+  }
+
+  .logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5rem;
+    font-weight: 900;
+    letter-spacing: -0.5px;
+  }
+  .logo span { color: var(--rust); }
+
+  .btn-new {
+    background: var(--rust);
+    color: #fff;
+    border: none;
+    padding: 0.5rem 1.2rem;
+    border-radius: 5px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s, transform 0.15s;
+  }
+  .btn-new:hover { background: var(--rust2); transform: translateY(-1px); }
+
+  /* MAIN */
+  main {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 2rem 1.25rem;
+  }
+
+  /* SEARCH */
+  .search-wrap {
+    position: relative;
+    margin-bottom: 2rem;
+  }
+  .search-wrap input {
+    width: 100%;
+    padding: 0.7rem 1rem 0.7rem 2.75rem;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    background: var(--card);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    color: var(--ink);
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .search-wrap input:focus {
+    outline: none;
+    border-color: var(--rust);
+    box-shadow: 0 0 0 3px rgba(193,68,14,0.1);
+  }
+  .search-icon {
+    position: absolute;
+    left: 0.85rem;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1rem;
+    pointer-events: none;
+    color: var(--muted);
+  }
+
+  /* LIST HEADER */
+  .list-header {
+    display: flex;
+    align-items: baseline;
+    gap: 0.75rem;
+    margin-bottom: 1.25rem;
+  }
+  .list-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.6rem;
+    font-weight: 900;
+  }
+  .list-count { font-size: 0.8rem; color: var(--muted); }
+
+  /* GRID */
+  #blogs {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.25rem;
+  }
+
+  .blog-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.4rem;
+    box-shadow: 0 1px 12px rgba(0,0,0,0.06);
+    transition: box-shadow 0.2s, transform 0.2s;
+    animation: fadeUp 0.35s ease both;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+  .blog-card:hover {
+    box-shadow: 0 6px 30px rgba(0,0,0,0.12);
+    transform: translateY(-3px);
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .blog-id {
+    font-size: 0.68rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--muted);
+  }
+  .blog-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem;
+    font-weight: 700;
+    line-height: 1.35;
+  }
+  .blog-text {
+    font-size: 0.875rem;
+    color: var(--muted);
+    line-height: 1.65;
+    flex: 1;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .blog-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 0.85rem;
+    border-top: 1px solid var(--border);
+    margin-top: auto;
+  }
+  .blog-time { font-size: 0.72rem; color: var(--muted); }
+  .blog-actions { display: flex; gap: 0.4rem; }
+
+  .btn-edit, .btn-del {
+    border: none;
+    border-radius: 5px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.78rem;
+    font-weight: 500;
+    padding: 0.3rem 0.7rem;
+    cursor: pointer;
+    transition: opacity 0.15s, transform 0.15s;
+  }
+  .btn-edit:hover, .btn-del:hover { opacity: 0.82; transform: translateY(-1px); }
+  .btn-edit { background: var(--bg); border: 1.5px solid var(--border); color: var(--ink); }
+  .btn-del  { background: var(--danger); color: #fff; }
+
+  /* EMPTY / ERROR */
+  .state-msg {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 4rem 1rem;
+    color: var(--muted);
+  }
+  .state-msg .icon { font-size: 3rem; margin-bottom: 0.75rem; }
+  .state-msg h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.3rem;
+    color: var(--ink);
+    margin-bottom: 0.35rem;
+  }
+
+  /* SPINNER */
+  .spinner-wrap {
+    grid-column: 1 / -1;
+    display: flex;
+    justify-content: center;
+    padding: 4rem;
+  }
+  .spinner {
+    width: 34px; height: 34px;
+    border: 3px solid var(--border);
+    border-top-color: var(--rust);
+    border-radius: 50%;
+    animation: spin 0.65s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* MODAL */
+  #modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(15,14,13,0.5);
+    backdrop-filter: blur(4px);
+    z-index: 200;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+  }
+  #modal.open { display: flex; }
+
+  .modal-box {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.75rem;
+    width: 100%;
+    max-width: 500px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+    animation: popIn 0.22s ease;
+  }
+  @keyframes popIn {
+    from { opacity: 0; transform: scale(0.95) translateY(8px); }
+    to   { opacity: 1; transform: scale(1) translateY(0); }
+  }
+
+  .modal-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.4rem;
+  }
+  .modal-head h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.3rem;
+    font-weight: 700;
+  }
+  .btn-close {
+    background: none; border: none;
+    font-size: 1.3rem; cursor: pointer;
+    color: var(--muted); line-height: 1;
+    padding: 2px 6px; border-radius: 4px;
+    transition: color 0.15s, background 0.15s;
+  }
+  .btn-close:hover { color: var(--ink); background: var(--bg); }
+
+  /* FORM */
+  .form-group { margin-bottom: 1.1rem; }
+  .form-group label {
+    display: block;
+    font-size: 0.75rem; font-weight: 500;
+    text-transform: uppercase; letter-spacing: 0.5px;
+    color: var(--muted); margin-bottom: 0.35rem;
+  }
+  .form-group input,
+  .form-group textarea {
+    width: 100%;
+    padding: 0.6rem 0.85rem;
+    border: 1.5px solid var(--border);
+    border-radius: 6px;
+    background: var(--bg);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    color: var(--ink);
+    transition: border-color 0.2s, box-shadow 0.2s;
+    resize: vertical;
+  }
+  .form-group input:focus,
+  .form-group textarea:focus {
+    outline: none;
+    border-color: var(--rust);
+    box-shadow: 0 0 0 3px rgba(193,68,14,0.1);
+  }
+  .char-hint {
+    text-align: right;
+    font-size: 0.72rem;
+    color: var(--muted);
+    margin-top: 3px;
+  }
+
+  .modal-foot {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.65rem;
+    margin-top: 1.4rem;
+  }
+  .btn-cancel {
+    background: var(--bg);
+    border: 1.5px solid var(--border);
+    color: var(--ink);
+    padding: 0.55rem 1.1rem;
+    border-radius: 5px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.875rem; font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .btn-cancel:hover { background: var(--border); }
+  .btn-save {
+    background: var(--rust); color: #fff; border: none;
+    padding: 0.55rem 1.3rem; border-radius: 5px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.875rem; font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s, transform 0.15s;
+  }
+  .btn-save:hover { background: var(--rust2); transform: translateY(-1px); }
+  .btn-save:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+  /* TOAST */
+  #toastBox {
+    position: fixed; bottom: 1.5rem; right: 1.5rem;
+    z-index: 999; display: flex; flex-direction: column; gap: 0.5rem;
+  }
+  .toast {
+    padding: 0.65rem 1.1rem; border-radius: 6px;
+    font-size: 0.85rem; font-weight: 500; color: #fff;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+    animation: toastIn 0.25s ease;
+    display: flex; align-items: center; gap: 0.45rem;
+    max-width: 280px;
+  }
+  .toast.success { background: var(--green); }
+  .toast.error   { background: var(--danger); }
+  @keyframes toastIn {
+    from { opacity: 0; transform: translateX(16px); }
+    to   { opacity: 1; transform: translateX(0); }
+  }
+
+  @media (max-width: 500px) {
+    header { padding: 0 1rem; }
+    main { padding: 1.25rem 0.75rem; }
+    .modal-box { padding: 1.25rem; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">Qalam<span>.</span>uz</div>
+  <button class="btn-new" onclick="openCreate()">+ Yangi blog</button>
+</header>
+
+<main>
+  <div class="search-wrap">
+    <span class="search-icon">🔍</span>
+    <input type="text" id="search" placeholder="Sarlavha bo'yicha qidirish..." oninput="searchBlog(this.value)"/>
+  </div>
+
+  <div class="list-header">
+    <h2 class="list-title">Bloglar</h2>
+    <span class="list-count" id="listCount"></span>
+  </div>
+
+  <div id="blogs">
+    <div class="spinner-wrap"><div class="spinner"></div></div>
+  </div>
+</main>
+
+<!-- Modal -->
+<div id="modal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h3 id="modalTitle">Yangi blog</h3>
+      <button class="btn-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="form-group">
+      <label>Sarlavha</label>
+      <input type="text" id="title" placeholder="Blog sarlavhasi..." maxlength="100"
+             oninput="updateHint('title','hTitle',100)"/>
+      <div class="char-hint"><span id="hTitle">0</span>/100</div>
+    </div>
+    <div class="form-group">
+      <label>Matn</label>
+      <textarea id="text" rows="5" placeholder="Blog matni..." maxlength="300"
+                oninput="updateHint('text','hText',300)"></textarea>
+      <div class="char-hint"><span id="hText">0</span>/300</div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-cancel" onclick="closeModal()">Bekor qilish</button>
+      <button class="btn-save" id="saveBtn" onclick="save()">Saqlash</button>
+    </div>
+  </div>
+</div>
+
+<div id="toastBox"></div>
+
+<script>
+  const API = "http://127.0.0.1:8000";
+  let editId = null;
+  let allBlogs = [];
+  let searchTimer;
+
+  function escHtml(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  function formatDate(dt) {
+    if (!dt) return '';
+    try { return new Date(dt).toLocaleString('uz-UZ', { dateStyle:'medium', timeStyle:'short' }); }
+    catch { return dt; }
+  }
+
+  function updateHint(inputId, hintId, max) {
+    const len = document.getElementById(inputId).value.length;
+    const el = document.getElementById(hintId);
+    el.textContent = len;
+    el.style.color = len > max * 0.9 ? 'var(--rust)' : 'var(--muted)';
+  }
+
+  function toast(msg, type = 'success') {
+    const box = document.getElementById('toastBox');
+    const el = document.createElement('div');
+    el.className = `toast ${type}`;
+    el.innerHTML = `<span>${type === 'success' ? '✓' : '✕'}</span>${msg}`;
+    box.appendChild(el);
+    setTimeout(() => el.remove(), 3000);
+  }
+
+  async function load() {
+    document.getElementById('blogs').innerHTML = '<div class="spinner-wrap"><div class="spinner"></div></div>';
+    document.getElementById('listCount').textContent = '';
+    try {
+      const r = await fetch(API + "/api/blogs/");
+      if (!r.ok) throw new Error();
+      allBlogs = await r.json();
+      render(allBlogs);
+    } catch {
+      document.getElementById('blogs').innerHTML = `
+        <div class="state-msg">
+          <div class="icon">⚡</div>
+          <h3>Server bilan aloqa yo'q</h3>
+          <p>Backend ishga tushirilganini tekshiring.</p>
+        </div>`;
+    }
+  }
+
+  function render(data) {
+    document.getElementById('listCount').textContent = `${data.length} ta`;
+    const box = document.getElementById('blogs');
+    if (!data.length) {
+      box.innerHTML = `
+        <div class="state-msg">
+          <div class="icon">📝</div>
+          <h3>Blog topilmadi</h3>
+          <p>Yangi blog yarating yoki qidiruvni o'zgartiring.</p>
+        </div>`;
+      return;
+    }
+    box.innerHTML = data.map((b, i) => `
+      <div class="blog-card" style="animation-delay:${i * 0.05}s">
+        <div class="blog-id">ID #${b.id}</div>
+        <div class="blog-title">${escHtml(b.title)}</div>
+        <div class="blog-text">${escHtml(b.text)}</div>
+        <div class="blog-footer">
+          <span class="blog-time">${formatDate(b.time)}</span>
+          <div class="blog-actions">
+            <button class="btn-edit" onclick="edit(${b.id})">✏️ Tahrir</button>
+            <button class="btn-del" onclick="del(${b.id}, ${JSON.stringify(escHtml(b.title))})">🗑️</button>
+          </div>
+        </div>
+      </div>`).join('');
+  }
+
+  function searchBlog(val) {
+    clearTimeout(searchTimer);
+    if (!val.trim()) { render(allBlogs); return; }
+    searchTimer = setTimeout(async () => {
+      try {
+        const r = await fetch(`${API}/api/blogs/title/${encodeURIComponent(val.trim())}`);
+        if (r.status === 404) { render([]); return; }
+        const data = await r.json();
+        render(Array.isArray(data) ? data : [data]);
+      } catch { render([]); }
+    }, 400);
+  }
+
+  function openCreate() {
+    editId = null;
+    document.getElementById('modalTitle').textContent = 'Yangi blog';
+    document.getElementById('saveBtn').textContent = 'Saqlash';
+    document.getElementById('title').value = '';
+    document.getElementById('text').value = '';
+    updateHint('title','hTitle',100);
+    updateHint('text','hText',300);
+    document.getElementById('modal').classList.add('open');
+  }
+
+  function closeModal() {
+    document.getElementById('modal').classList.remove('open');
+  }
+
+  async function edit(id) {
+    try {
+      const r = await fetch(`${API}/api/blogs/id/${id}`);
+      if (!r.ok) throw new Error();
+      const b = await r.json();
+      editId = id;
+      document.getElementById('modalTitle').textContent = 'Blogni tahrirlash';
+      document.getElementById('saveBtn').textContent = 'Yangilash';
+      document.getElementById('title').value = b.title;
+      document.getElementById('text').value = b.text;
+      updateHint('title','hTitle',100);
+      updateHint('text','hText',300);
+      document.getElementById('modal').classList.add('open');
+    } catch { toast('Yuklab bo\'lmadi', 'error'); }
+  }
+
+  async function save() {
+    const title = document.getElementById('title').value.trim();
+    const text  = document.getElementById('text').value.trim();
+    if (!title) { toast('Sarlavha kiriting!', 'error'); return; }
+    if (!text)  { toast('Matn kiriting!', 'error'); return; }
+
+    const btn = document.getElementById('saveBtn');
+    btn.disabled = true; btn.textContent = '...';
+
+    try {
+      const url = editId ? `${API}/api/blogs/id/${editId}` : `${API}/api/blogs/`;
+      const r = await fetch(url, {
+        method: editId ? 'PUT' : 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title, text })
+      });
+      if (!r.ok) throw new Error();
+      closeModal();
+      toast(editId ? 'Blog yangilandi!' : 'Blog yaratildi!');
+      load();
+    } catch { toast('Xato yuz berdi', 'error'); }
+    finally {
+      btn.disabled = false;
+      btn.textContent = editId ? 'Yangilash' : 'Saqlash';
+    }
+  }
+
+  async function del(id, title) {
+    if (!confirm(`"${title}" o'chirilsinmi?`)) return;
+    try {
+      await fetch(`${API}/api/blogs/${id}`, { method: 'DELETE' });
+      toast('Blog o\'chirildi');
+      load();
+    } catch { toast('O\'chirishda xato', 'error'); }
+  }
+
+  document.getElementById('modal').addEventListener('click', function(e) {
+    if (e.target === this) closeModal();
+  });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+  load();
+</script>
+</body>
+</html>
